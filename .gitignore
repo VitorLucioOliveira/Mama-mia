@@ -3,6 +3,7 @@ images/
 segmentations/
 nnUNet_pretrained_weights/
 patient_info_files/
+Testes_manufacture
 
 .venv/
 __pycache__/

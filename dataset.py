@@ -5,61 +5,56 @@ import torch
 from torch.utils.data import Dataset
 import random
 
-class DukeDataset(Dataset):
-    def __init__(self, root_dir, patient_list=None):
+class Dataset(Dataset):
+    def __init__(self, root_dir, patient_list=None, fase_especifica=None, is_train=False):
         """
         Args:
             root_dir (string): Caminho para a pasta 'dados_processados_2d'
+            patient_list (list): Lista de IDs de pacientes permitidos (treino ou teste)
+            fase_especifica (string): Filtra uma fase exata (ex: '0001'). None carrega todas.
+            is_train (bool): Controla se o Data Augmentation será aplicado nesta instância.
         """
-     
         self.root_dir = root_dir
         self.images_dir = os.path.join(root_dir, "images")
         self.masks_dir = os.path.join(root_dir, "masks")
+        self.is_train = is_train  
         
-        # 1. Listar os arquivos .npy da pasta images
-        # O glob pega todos os caminhos. O sorted para garantir ordem.
+        # Lista apenas imagens (não máscaras) para não duplicar a contagem
         self.files = sorted(glob.glob(os.path.join(self.images_dir, "*.npy")))
         
-        # 2. Verificar pacientes
         if patient_list is not None:
-            arquivos_filtrados= []
-            
-            # percorre todos os arquivos
+            arquivos_filtrados = []
             for caminho in self.files:
-                
                 nome_arquivo = os.path.basename(caminho)
-                patient_id = nome_arquivo[:8]
+                # Extrai o ID: "DUKE_001_0001_slice_015.npy" -> "DUKE_001"
+                partes = nome_arquivo.split('_')
+                patient_id = "_".join(partes[:2]) 
                 
-                # Se o paciente estiver na lista desejada (treino/test) insere na nova lista
                 if patient_id in patient_list:
                     arquivos_filtrados.append(caminho)
-                    
             self.files = arquivos_filtrados
-            
-        # 3. Verificação de segurança
-        if len(self.files) == 0:
-            print(f"ERRO: Nenhuma imagem encontrada em {self.images_dir}")
+
+        if fase_especifica is not None:
+            self.files = [f for f in self.files if f"_{fase_especifica}_" in f]
     
     def __len__(self):
         return len(self.files)
     
     def __getitem__(self, index):
-        # Achar o arquivo com o index pedido
-        img_path = self.files[index]
         
-        # Descobrir qual é a máscara correspondente
+        img_path = self.files[index]
         filename = os.path.basename(img_path)
-        mask_filename = filename[:8] + filename[13:] # Pula a fase da imagem do paciente (DUKE_001|_0002|_slice_015.npy)
+        
+        # Se a imagem é "DUKE_001_0001_slice_015.npy"
+        # A máscara agora se chama "DUKE_001_0001_slice_015_mask.npy"
+        mask_filename = filename.replace(".npy", "_mask.npy")
         mask_path = os.path.join(self.masks_dir, mask_filename)
         
-        # Carregar do disco (Numpy)
-        # .astype(np.float32) é vital: Redes neurais usam float32. 
+        # Carregar do disco
         image = np.load(img_path).astype(np.float32)
         mask = np.load(mask_path).astype(np.float32)
         
         # Adicionar dimensão de Canal (Channel)
-        # Imagem atual é (256, 256) -> Altura x Largura
-        # O PyTorch exige (1, 256, 256) -> Canais x Altura x Largura
         image = image[None, :, :] 
         mask = mask[None, :, :]
         
@@ -67,11 +62,22 @@ class DukeDataset(Dataset):
         image = torch.from_numpy(image)
         mask = torch.from_numpy(mask)
         
-        # Random flipping
-        if random.random() < 0.5:
-            image = torch.flip(image, dims=[2])
-            mask = torch.flip(mask, dims=[2])
+        #  Aleatoriedade isolada (não aumenta dados e Data Augmentation APENAS no Treino)
+        if self.is_train:
+            # Flip Horizontal (50% de chance)
+            if random.random() > 0.5:
+                image = torch.flip(image, dims=[2])
+                mask = torch.flip(mask, dims=[2])
+            
+            # Flip Vertical (50% de chance)
+            if random.random() > 0.5:
+                image = torch.flip(image, dims=[1])
+                mask = torch.flip(mask, dims=[1])
+            
+            # Rotação Aleatória (90, 180 ou 270 graus)
+            if random.random() > 0.5:
+                k = random.randint(1, 3)
+                image = torch.rot90(image, k, dims=[1, 2])
+                mask = torch.rot90(mask, k, dims=[1, 2])
         
         return image, mask
-    pass
-

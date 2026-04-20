@@ -2,12 +2,19 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 import pandas as pd
-from dataset import DukeDataset
-from model import SimpleUNet
+from dataset import Dataset  # Certifique-se que sua classe no dataset.py tem este nome
 import random
 import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm 
+from sklearn.model_selection import train_test_split
+import segmentation_models_pytorch as smp
+import os
+
+# Otimizações importantes para WSL + pouca RAM
+torch.backends.cudnn.benchmark = True          # acelera convoluções
+torch.backends.cuda.matmul.allow_tf32 = True   # menos VRAM
+torch.backends.cudnn.allow_tf32 = True         # menos VRAM
 
 def set_seed(seed):
     random.seed(seed)
@@ -15,260 +22,259 @@ def set_seed(seed):
     torch.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
 
-
-# ---------------- LOSS FUNCTIONS ---------------- #
+# ---------------- Métricas e Losses ---------------- #
 
 def dice_loss(logits, masks, smooth=1e-8):
-
     probs = torch.sigmoid(logits)
-
     probs = probs.view(probs.size(0), -1)
     masks = masks.view(masks.size(0), -1)
-
     intersection = (probs * masks).sum(dim=1)
     union = probs.sum(dim=1) + masks.sum(dim=1)
-
     dice = (2 * intersection + smooth) / (union + smooth)
-
     return 1 - dice.mean()
 
-
-# Dice métrico (soft)
 def calculate_dice(logits, masks, smooth=1e-8):
-
     probs = torch.sigmoid(logits)
     preds = (probs > 0.5).float()
-
     preds = preds.view(preds.size(0), -1)
     masks = masks.view(masks.size(0), -1)
-
     intersection = (preds * masks).sum(dim=1)
     union = preds.sum(dim=1) + masks.sum(dim=1)
-
     dice = (2 * intersection + smooth) / (union + smooth)
-
     return dice.mean()
 
-
-# IoU / Jaccard
 def calculate_iou(logits, masks, smooth=1e-8):
-
     probs = torch.sigmoid(logits)
     preds = (probs > 0.5).float()
-
     preds = preds.view(preds.size(0), -1)
     masks = masks.view(masks.size(0), -1)
-
     intersection = (preds * masks).sum(dim=1)
     union = preds.sum(dim=1) + masks.sum(dim=1) - intersection
-
     iou = (intersection + smooth) / (union + smooth)
-
     return iou.mean()
-
 
 if __name__ == "__main__":
     
-    #------------- Configs Iniciais -------------------#
-
+    #------------- Configurações -------------#
     CONFIG = {
         'seed': 42,
-        'batch_size':4,
+        'batch_size': 32,
         'lr': 0.0001,
-        'num_epochs':50
+        'num_epochs': 10,
+        'accum_steps': 2
     }
 
     set_seed(CONFIG['seed'])
-
-    # Pega a lista de treino e test disponiveis
-    split_df = pd.read_csv("dados_processados_2d/train_test_splits.csv")
-
-    lista_treino = split_df['train_split'].dropna().tolist()
-    lista_test = split_df['test_split'].dropna().tolist()
-
-    dataset_treino = DukeDataset("dados_processados_2d", lista_treino)
-    dataset_test = DukeDataset("dados_processados_2d", lista_test)
-
-    train_loader = DataLoader(dataset_treino, batch_size=CONFIG['batch_size'], shuffle=True)
-    val_loader = DataLoader(dataset_test, batch_size=CONFIG['batch_size'], shuffle=False)
-
-    model = SimpleUNet(n_channels=1, n_classes=1)
-
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model.to(device)
+    use_amp = torch.cuda.is_available()
+    scaler = torch.amp.GradScaler("cuda", enabled=use_amp)
+    pin_memory = torch.cuda.is_available()
 
-    # BCE com peso para classe positiva
-    pos_weight = torch.tensor([5.0]).to(device)
-    bce_loss = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
+    # Preparação dos Dados
+    split_df = pd.read_csv("train_test_splits.csv")
+    lista_treino_base = split_df['train_split'].dropna().tolist()
+    
+    
+    # Treinamentos por tipo de xxx
+    df_clinico = pd.read_csv("clinical_data.csv")
+    coluna_alvo = 'manufacturer' 
+    grupos_unicos = df_clinico[coluna_alvo].dropna().unique()
+    
+    print(f"Grupos encontrados para treinamento: {grupos_unicos}")
+    
+    for grupo in grupos_unicos:
+        print(f"\n{'='*50}")
+        print(f"🚀 INICIANDO TREINAMENTO PARA: {grupo}")
+        print(f"{'='*50}")
+        
+        # Limpa o nome para usar nos arquivos (troca espaço por underline)
+        grupo_limpo = str(grupo).replace(" ", "_").replace("/", "_")
+        
+        # Filtra os pacientes que pertencem a este grupo
+        pacientes_do_grupo = df_clinico[df_clinico[coluna_alvo] == grupo]['patient_id'].tolist()
+        
+        # Interseção: Pacientes do grupo que também estão no split de treino
+        lista_treino_filtrada = [p for p in lista_treino_base if p in pacientes_do_grupo]
+        
+        if len(lista_treino_filtrada) == 0:
+            print(f"Aviso: Nenhum paciente de treino encontrado para {grupo}. Pulando...")
+            continue
+            
+        # Faz o split de treino/validação especificamente para este grupo
+        lista_treino_final, lista_val = train_test_split(
+            lista_treino_filtrada, test_size=0.2, random_state=CONFIG['seed']
+        )
+        
+        # Datasets (fase_especifica=None para usar todas as fases DCE)
+        dataset_treino = Dataset("dados_processados_2d", lista_treino_final, fase_especifica="0001", is_train=True)
+        dataset_val = Dataset("dados_processados_2d", lista_val, fase_especifica="0001", is_train=False)
 
-    def combined_loss(logits, masks):
-        return bce_loss(logits, masks) + dice_loss(logits, masks)
-
-    optimizer = torch.optim.Adam(model.parameters(), lr=CONFIG['lr'])
-
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-        optimizer,
-        mode='max',
-        patience=5,
-        factor=0.5
-    )
-
-    num_epochs = CONFIG['num_epochs']
-    melhor_val_dice = 0.0
-
-    # Elementos para graficos
-    historico_loss_treino, historico_loss_val = [],[]
-    historico_dice_treino , historico_dice_val = [],[]
-    historico_iou_treino , historico_iou_val = [],[]
-
-    #------------- Loop de Treinamento --------------#
-
-    for i in range(num_epochs):
-
-        total_loss_treino = total_loss_val = 0.0
-        total_dice_treino = total_dice_val = 0.0
-        total_iou_treino = total_iou_val = 0.0
-
-        total_amostras_treino = 0
-        total_amostras_val = 0
-
-        # -------- TREINO -------- #
-
-        model.train()
-
-        for train_images, train_masks in tqdm(train_loader, desc=f"Treino Época {i+1}"):
-
-            train_images = train_images.to(device)
-            train_masks = train_masks.to(device)
-
-            optimizer.zero_grad()
-
-            train_previsoes = model(train_images)
-
-            train_loss = combined_loss(train_previsoes, train_masks)
-
-            train_loss.backward()
-
-            torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-
-            optimizer.step()
-
-            train_dice = calculate_dice(train_previsoes, train_masks)
-            train_iou = calculate_iou(train_previsoes, train_masks)
-
-            train_size = train_images.size(0)
-
-            total_amostras_treino += train_size
-
-            total_loss_treino += train_loss.item() * train_size
-            total_dice_treino += train_dice.item() * train_size
-            total_iou_treino += train_iou.item() * train_size
-
-
-        # -------- VALIDAÇÃO -------- #
-
-        model.eval()
-
-        with torch.no_grad():
-
-            for val_images, val_masks in tqdm(val_loader, desc=f"Teste Época {i+1}"):
-
-                val_images = val_images.to(device)
-                val_masks = val_masks.to(device)
-
-                val_previsoes = model(val_images)
-
-                val_loss = combined_loss(val_previsoes, val_masks)
-
-                val_dice = calculate_dice(val_previsoes, val_masks)
-                val_iou = calculate_iou(val_previsoes, val_masks)
-
-                val_size = val_images.size(0)
-
-                total_amostras_val += val_size
-
-                total_loss_val += val_loss.item() * val_size
-                total_dice_val += val_dice.item() * val_size
-                total_iou_val += val_iou.item() * val_size
-
-
-        # -------- MÉDIAS -------- #
-
-        media_train_loss = total_loss_treino / total_amostras_treino
-        media_train_dice = total_dice_treino / total_amostras_treino
-        media_train_iou = total_iou_treino / total_amostras_treino
-
-        media_val_loss = total_loss_val / total_amostras_val
-        media_val_dice = total_dice_val / total_amostras_val
-        media_val_iou = total_iou_val / total_amostras_val
-
-        # Scheduler
-        scheduler.step(media_val_dice)
-
-        # Histórico
-
-        historico_loss_treino.append(media_train_loss)
-        historico_loss_val.append(media_val_loss)
-
-        historico_dice_treino.append(media_train_dice)
-        historico_dice_val.append(media_val_dice)
-
-        historico_iou_treino.append(media_train_iou)
-        historico_iou_val.append(media_val_iou)
-
-        # Salvar melhor modelo
-
-        if media_val_dice > melhor_val_dice:
-
-            melhor_val_dice = media_val_dice
-            torch.save(model.state_dict(), "melhor_unet.pth")
-            print("Novo recorde! Modelo salvo.")
-
-        print(
-            f"Época [{i+1}/{num_epochs}] "
-            f"| Loss Treino: {media_train_loss:.4f} "
-            f"| Loss Val: {media_val_loss:.4f} "
-            f"| Dice Treino: {media_train_dice:.4f} "
-            f"| Dice Val: {media_val_dice:.4f} "
-            f"| IoU Val: {media_val_iou:.4f}"
+        train_loader = DataLoader(
+            dataset_treino,
+            batch_size=CONFIG['batch_size'],
+            shuffle=True,
+            num_workers=1,            # ← REDUZ RAM (antes era 2)
+           pin_memory=pin_memory,
+            prefetch_factor=2,        # ← controla pré-carregamento
+            persistent_workers=False  # ← LIBERA RAM entre épocas
         )
 
+        val_loader = DataLoader(
+            dataset_val,
+            batch_size=CONFIG['batch_size'],
+            shuffle=False,
+            num_workers=1,
+           pin_memory=pin_memory,
+            prefetch_factor=2,
+            persistent_workers=False
+        )
 
-    #------------- Plotando os Gráficos --------------#
+        # Inicialização: MobileNet-V2 como Encoder da UNet
+        model = smp.Unet(
+            encoder_name="mobilenet_v2",
+            encoder_weights="imagenet",
+            in_channels=1,
+            classes=1
+        ).to(device)
 
-    print("\nGerando gráficos de treinamento...")
 
-    fig, axs = plt.subplots(3, 1, figsize=(10, 15))
+        # Loss Composta 
+        bce_loss = nn.BCEWithLogitsLoss()
+        def combined_loss(logits, masks):
+            return (0.5 * bce_loss(logits, masks)) + (0.5 * dice_loss(logits, masks))
 
-    # LOSS
-    axs[0].plot(historico_loss_treino, label='Treino')
-    axs[0].plot(historico_loss_val, label='Validação')
-    axs[0].set_title('Loss')
-    axs[0].set_xlabel('Épocas')
-    axs[0].set_ylabel('Loss')
-    axs[0].legend()
-    axs[0].grid(True)
+        optimizer = torch.optim.Adam(model.parameters(), lr=CONFIG['lr'])
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='max', patience=3, factor=0.5)
 
-    # DICE
-    axs[1].plot(historico_dice_treino, label='Treino')
-    axs[1].plot(historico_dice_val, label='Validação')
-    axs[1].set_title('Dice Score')
-    axs[1].set_xlabel('Épocas')
-    axs[1].set_ylabel('Dice')
-    axs[1].legend()
-    axs[1].grid(True)
+        # Histórico para os gráficos
+        melhor_val_dice = 0.0
+        historico = {
+            'loss_treino': [], 'loss_val': [],
+            'dice_treino': [], 'dice_val': [],
+            'iou_treino': [], 'iou_val': [],
+            'lr': []
+        }
 
-    # IOU
-    axs[2].plot(historico_iou_treino, label='Treino')
-    axs[2].plot(historico_iou_val, label='Validação')
-    axs[2].set_title('IoU (Jaccard Index)')
-    axs[2].set_xlabel('Épocas')
-    axs[2].set_ylabel('IoU')
-    axs[2].legend()
-    axs[2].grid(True)
+        #------------- Loop de Treinamento --------------#
 
-    plt.tight_layout()
+        for epoch in range(CONFIG['num_epochs']):
+            metrics_epoch = {'loss_t': 0, 'dice_t': 0, 'iou_t': 0, 'loss_v': 0, 'dice_v': 0, 'iou_v': 0}
+            
+            # TREINO
+            model.train()
+            for i, (images, masks) in enumerate(tqdm(train_loader, desc=f"Época {epoch+1} [Treino]")):
+                
+                images, masks = images.to(device), masks.to(device)
+                
+                # zera gradientes só quando começa acumulação
+                if i % CONFIG['accum_steps'] == 0:
+                    optimizer.zero_grad(set_to_none=True)
+                
+                # forward em mixed precision
+                with torch.amp.autocast("cuda", enabled=use_amp):
+                    outputs = model(images)
+                    loss = combined_loss(outputs, masks) / CONFIG['accum_steps']
 
-    plt.savefig("graficos_treinamento.png", dpi=300)
+                # acumula gradientes
+                scaler.scale(loss).backward()
 
-    print("Gráficos salvos em alta resolução!")
+                # quando completar N batches → faz update real
+                if (i + 1) % CONFIG['accum_steps'] == 0:
+
+                    # unscale antes de clipar
+                    scaler.unscale_(optimizer)
+
+                    # gradient clipping correto
+                    torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+
+                    # step real
+                    scaler.step(optimizer)
+                    scaler.update()
+
+                batch_size = images.size(0)
+                metrics_epoch['loss_t'] += loss.item() * batch_size
+                metrics_epoch['dice_t'] += calculate_dice(outputs, masks).item() * batch_size
+                metrics_epoch['iou_t'] += calculate_iou(outputs, masks).item() * batch_size
+
+            if (i + 1) % CONFIG['accum_steps'] != 0:
+                scaler.unscale_(optimizer)
+                torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+                scaler.step(optimizer)
+                scaler.update()
+                        
+            # VALIDAÇÃO
+            model.eval()
+            with torch.no_grad():
+                for images, masks in tqdm(val_loader, desc=f"Época {epoch+1} [Val]"):
+                    images, masks = images.to(device), masks.to(device)
+
+                    with torch.amp.autocast("cuda", enabled=use_amp):
+                        outputs = model(images)
+                        loss = combined_loss(outputs, masks)
+    
+                    batch_size = images.size(0)
+                    metrics_epoch['loss_v'] += loss.item() * batch_size
+                    metrics_epoch['dice_v'] += calculate_dice(outputs, masks).item() * batch_size
+                    metrics_epoch['iou_v'] += calculate_iou(outputs, masks).item() * batch_size
+
+            # Médias da Época
+            n_treino, n_val = len(dataset_treino), len(dataset_val)
+            historico['loss_treino'].append(metrics_epoch['loss_t'] / n_treino)
+            historico['loss_val'].append(metrics_epoch['loss_v'] / n_val)
+            historico['dice_treino'].append(metrics_epoch['dice_t'] / n_treino)
+            historico['dice_val'].append(metrics_epoch['dice_v'] / n_val)
+            historico['iou_treino'].append(metrics_epoch['iou_t'] / n_treino)
+            historico['iou_val'].append(metrics_epoch['iou_v'] / n_val)
+            historico['lr'].append(optimizer.param_groups[0]['lr'])
+            
+            torch.cuda.empty_cache() # limpa cache
+            
+            # Atualiza Scheduler com base no Dice de Validação
+            scheduler.step(historico['dice_val'][-1])
+
+            # Salva o melhor modelo
+            if historico['dice_val'][-1] > melhor_val_dice:
+                melhor_val_dice = historico['dice_val'][-1]
+                
+                nome_arquivo_modelo = f"mobilenet_modelo_{grupo_limpo}.pth"
+                torch.save(model.state_dict(), nome_arquivo_modelo)
+                
+                print(f"⭐ Novo recorde: Dice {melhor_val_dice:.4f} salvo em {nome_arquivo_modelo}")
+
+       #------------- Plotagem Estilo Jupyter --------------#
+        print(f"\n📊 Gerando gráficos finais para {grupo}...")
+        fig, axs = plt.subplots(4, 1, figsize=(12, 20))
+        epochs_range = range(1, CONFIG['num_epochs'] + 1)
+        
+        # LOSS
+        axs[0].plot(epochs_range, historico['loss_treino'], 'b-o', label='Treino')
+        axs[0].plot(epochs_range, historico['loss_val'], 'r-o', label='Validação')
+        axs[0].set_title(f'Curva de Perda (Mixed Loss) - {grupo}') # <-- ALTERADO
+        axs[0].set_ylabel('Loss')
+        
+        # DICE
+        axs[1].plot(epochs_range, historico['dice_treino'], 'g-s', label='Treino')
+        axs[1].plot(epochs_range, historico['dice_val'], 'orange', marker='s', label='Validação')
+        axs[1].set_title(f'Evolução do Dice Score - {grupo}') # <-- ALTERADO
+        axs[1].set_ylabel('Dice')
+        
+        # IOU
+        axs[2].plot(epochs_range, historico['iou_treino'], 'm-d', label='Treino')
+        axs[2].plot(epochs_range, historico['iou_val'], 'c-d', label='Validação')
+        axs[2].set_title(f'Evolução do IoU - {grupo}') # <-- ALTERADO
+        axs[2].set_ylabel('IoU Score')
+
+        # LEARNING RATE
+        axs[3].plot(epochs_range, historico['lr'], color='black', linestyle='--', label='LR')
+        axs[3].set_title(f'Taxa de Aprendizagem (Scheduler) - {grupo}') # <-- ALTERADO
+        axs[3].set_ylabel('LR'); axs[3].set_yscale('log')
+
+        for ax in axs:
+            ax.set_xlabel('Épocas'); ax.legend(); ax.grid(True, linestyle=':', alpha=0.6)
+        
+        plt.tight_layout()
+        
+        
+        nome_arquivo_grafico = f"resultados_finais_mobilenet_{grupo_limpo}.png"
+        plt.savefig(nome_arquivo_grafico, dpi=300)
+        print(f"✅ Processo concluído para {grupo}!")
