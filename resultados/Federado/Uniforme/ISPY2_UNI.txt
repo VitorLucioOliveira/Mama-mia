@@ -1,0 +1,300 @@
+root@8626b236b5a4:/app# flower-supernode --insecure --superlink host.docker.internal:9092 --clientappio-api-address 0.0.0.0:9094 --node-config 'dataset="ISPY2"'
+╭────────────────── Update available ───────────────────╮
+│ A newer Flower version is available: 1.29.0 -> 1.32.1 │
+│ Upgrade: python -m pip install -U flwr                │
+╰───────────────────────────────────────────────────────╯
+INFO :      Starting Flower SuperNode
+WARNING :   Option `--insecure` was set. Starting insecure HTTP channel to host.docker.internal:9092.
+INFO :      Flower Deployment Runtime: Starting ClientAppIo API on 0.0.0.0:9094
+INFO :      SuperNode ID: 11691042959155705084
+INFO :      Starting Flower SuperExec
+INFO :
+INFO :      [RUN 3223487722966314410]
+INFO :      Receiving: train message (ID: ad213497f8d22008667db134f4ee43ce2cdb33a688da1da86d68f57d6946becf)
+INFO :      Received successfully
+INFO :      Start `flwr-clientapp` process
+INFO :      [flwr-clientapp] Pull `AppInputs` for token 74be...b9bf
+A mapear e abrir proxies para 679 volumes...
+[ISPY2] treinando em 41200 fatias...
+INFO :      [flwr-clientapp] Push `AppOutputs` for token 74be...b9bf
+INFO :
+INFO :      [RUN 3223487722966314410]
+INFO :      Sending: train message (ID: 43099606308cce2a596a2219515cb36c53881ce73ccf090eddbaa2c1bfa1f388)
+INFO :
+INFO :      Sent successfully
+INFO :
+INFO :      [RUN 3223487722966314410]
+INFO :      Receiving: evaluate message (ID: e748e3f220e6b9f7d7cfa2e73997fbc320254c9afe95e9dea4c2ada3835b5e2b)
+INFO :      Received successfully
+INFO :      Start `flwr-clientapp` process
+INFO :      [flwr-clientapp] Pull `AppInputs` for token 8844...a1bb
+A mapear e abrir proxies para 170 volumes...
+[ISPY2] validando em 10490 fatias...
+[ISPY2] val_loss=0.4716 | val_dice3D=0.1547
+INFO :      [flwr-clientapp] Push `AppOutputs` for token 8844...a1bb
+INFO :
+INFO :
+INFO :      [RUN 3223487722966314410]
+INFO :      Sending: evaluate message (ID: 408e2b2d4307c28cf411deb1549749990fb8d13344cce13e2d4daeebef167571)
+INFO :      Sent successfully
+INFO :
+INFO :      [RUN 3223487722966314410]
+INFO :      Receiving: train message (ID: 5d940ac6b118dea6afc2361ffdf366939d4ca891f79ac7fd1a52441ab0e3bb9d)
+INFO :      Received successfully
+INFO :      Start `flwr-clientapp` process
+INFO :      [flwr-clientapp] Pull `AppInputs` for token 758c...7b89
+A mapear e abrir proxies para 679 volumes...
+[ISPY2] treinando em 41200 fatias...
+INFO :      [flwr-clientapp] Push `AppOutputs` for token 758c...7b89
+INFO :
+INFO :      [RUN 3223487722966314410]
+INFO :      Sending: train message (ID: 155f50cb9e43633add7729d6b67a3094f44d627d07b172db1330028eb3fbf9ae)
+INFO :
+INFO :      Sent successfully
+INFO :
+INFO :      [RUN 3223487722966314410]
+INFO :      Receiving: evaluate message (ID: 579f1f338a57ddc167456b4feb501dee9cae7e9eb3d9f82d6f18cae53dae04fb)
+INFO :      Received successfully
+INFO :      Start `flwr-clientapp` process
+INFO :      [flwr-clientapp] Pull `AppInputs` for token e3e6...5ed7
+A mapear e abrir proxies para 170 volumes...
+[ISPY2] validando em 10490 fatias...
+[ISPY2] val_loss=0.3074 | val_dice3D=0.3744
+INFO :      [flwr-clientapp] Push `AppOutputs` for token e3e6...5ed7
+INFO :
+INFO :
+INFO :      [RUN 3223487722966314410]
+INFO :      Sending: evaluate message (ID: 66a237178be46516f823e7a2069d8f80199a4e31084570afb88f08b3d5a71cb7)
+INFO :      Sent successfully
+INFO :
+INFO :      [RUN 3223487722966314410]
+INFO :      Receiving: train message (ID: 3acaed66c9d40f9ff2edb5a065323e45cd25db035e1de5d9fa6e6a6edc5d9192)
+INFO :      Received successfully
+INFO :      Start `flwr-clientapp` process
+INFO :      [flwr-clientapp] Pull `AppInputs` for token c57f...bba3
+A mapear e abrir proxies para 679 volumes...
+[ISPY2] treinando em 41200 fatias...
+INFO :      [flwr-clientapp] Push `AppOutputs` for token c57f...bba3
+INFO :
+INFO :      [RUN 3223487722966314410]
+INFO :      Sending: train message (ID: 3c21250b7e5d5bde21bcf7bea316faefb6a17a1abb13cecfcb6abb6bb942bd74)
+INFO :
+INFO :      Sent successfully
+INFO :
+INFO :      [RUN 3223487722966314410]
+INFO :      Receiving: evaluate message (ID: 372fa0363f3ad3eb1c8efada785eed7a8046c80bff32c884567a756fae30da9e)
+INFO :      Received successfully
+INFO :      Start `flwr-clientapp` process
+INFO :      [flwr-clientapp] Pull `AppInputs` for token a013...c6b7
+A mapear e abrir proxies para 170 volumes...
+[ISPY2] validando em 10490 fatias...
+[ISPY2] val_loss=0.2661 | val_dice3D=0.4984
+INFO :      [flwr-clientapp] Push `AppOutputs` for token a013...c6b7
+INFO :
+INFO :
+INFO :      [RUN 3223487722966314410]
+INFO :      Sending: evaluate message (ID: 74b91e00f40ebde732b684bf6b8a8cf2bbf53054136fcb646fbb7df96d3f0865)
+INFO :      Sent successfully
+INFO :
+INFO :      [RUN 3223487722966314410]
+INFO :      Receiving: train message (ID: c6257d9c4047764aa8087833c0f0ce0c4d4eaed6ccab7664f9195c14c185db37)
+INFO :      Received successfully
+INFO :      Start `flwr-clientapp` process
+INFO :      [flwr-clientapp] Pull `AppInputs` for token fddc...e2e0
+A mapear e abrir proxies para 679 volumes...
+[ISPY2] treinando em 41200 fatias...
+INFO :      [flwr-clientapp] Push `AppOutputs` for token fddc...e2e0
+INFO :
+INFO :      [RUN 3223487722966314410]
+INFO :      Sending: train message (ID: a860c43e95fa3c6566eece5fe032287e5e8383da09fd267d8579cfe71e6ba44d)
+INFO :
+INFO :      Sent successfully
+INFO :
+INFO :      [RUN 3223487722966314410]
+INFO :      Receiving: evaluate message (ID: c58f65a03feb38cf21bb55d2bd8dccd6dfa37fcdfa590cb7c985887d1f410c12)
+INFO :      Received successfully
+INFO :      Start `flwr-clientapp` process
+INFO :      [flwr-clientapp] Pull `AppInputs` for token 336e...d12b
+A mapear e abrir proxies para 170 volumes...
+[ISPY2] validando em 10490 fatias...
+[ISPY2] val_loss=0.2420 | val_dice3D=0.5601
+INFO :      [flwr-clientapp] Push `AppOutputs` for token 336e...d12b
+INFO :
+INFO :
+INFO :      [RUN 3223487722966314410]
+INFO :      Sending: evaluate message (ID: ea9a82e715475a681a3084b539b45daa546b5573c59cf759d1a08206048bf4d3)
+INFO :      Sent successfully
+INFO :
+INFO :      [RUN 3223487722966314410]
+INFO :      Receiving: train message (ID: e23fdd01811f117cd9cdc8659f9459059832fc9ba518f8ae93c66edf63a26cf3)
+INFO :      Received successfully
+INFO :      Start `flwr-clientapp` process
+INFO :      [flwr-clientapp] Pull `AppInputs` for token 4aca...4096
+A mapear e abrir proxies para 679 volumes...
+[ISPY2] treinando em 41200 fatias...
+INFO :      [flwr-clientapp] Push `AppOutputs` for token 4aca...4096
+INFO :
+INFO :
+INFO :      [RUN 3223487722966314410]
+INFO :      Sending: train message (ID: e5b5fe057ce77043b3021f53e87e2ae8e1e2c54358bf4423d3e4e48d9a21fce7)
+INFO :      Sent successfully
+INFO :
+INFO :      [RUN 3223487722966314410]
+INFO :      Receiving: evaluate message (ID: 4fdb261a9dfe1a6177809b109547bb1cc0d2268cfd4100e7f659756ad2a077f8)
+INFO :      Received successfully
+INFO :      Start `flwr-clientapp` process
+INFO :      [flwr-clientapp] Pull `AppInputs` for token 5b67...7f4e
+A mapear e abrir proxies para 170 volumes...
+[ISPY2] validando em 10490 fatias...
+[ISPY2] val_loss=0.2418 | val_dice3D=0.5628
+INFO :      [flwr-clientapp] Push `AppOutputs` for token 5b67...7f4e
+INFO :
+INFO :
+INFO :      [RUN 3223487722966314410]
+INFO :      Sending: evaluate message (ID: 830ce72f75bb0284274d878f81f30eed0d0e41d8cbf7c1fbc47e99a4d73dfcd5)
+INFO :      Sent successfully
+INFO :
+INFO :      [RUN 3223487722966314410]
+INFO :      Receiving: train message (ID: f4b837fe43648acea7cd0a949f6ecc17b4379d742f8da0a1d8f9d18ab7d2dfa4)
+INFO :      Received successfully
+INFO :      Start `flwr-clientapp` process
+INFO :      [flwr-clientapp] Pull `AppInputs` for token 4bfc...48eb
+A mapear e abrir proxies para 679 volumes...
+[ISPY2] treinando em 41200 fatias...
+INFO :      [flwr-clientapp] Push `AppOutputs` for token 4bfc...48eb
+INFO :
+INFO :
+INFO :      [RUN 3223487722966314410]
+INFO :      Sending: train message (ID: 857e083ba93e299a10a9f8aef9daa665da8e111b9ec1de2b1d20c0f98d0084af)
+INFO :      Sent successfully
+INFO :
+INFO :      [RUN 3223487722966314410]
+INFO :      Receiving: evaluate message (ID: ee342fa5e6adb76e9fac397d97b0e07651aaebee93cb6e6dc715cba3919603f5)
+INFO :      Received successfully
+INFO :      Start `flwr-clientapp` process
+INFO :      [flwr-clientapp] Pull `AppInputs` for token 6981...e012
+A mapear e abrir proxies para 170 volumes...
+[ISPY2] validando em 10490 fatias...
+[ISPY2] val_loss=0.2154 | val_dice3D=0.6190
+INFO :      [flwr-clientapp] Push `AppOutputs` for token 6981...e012
+INFO :
+INFO :
+INFO :      [RUN 3223487722966314410]
+INFO :      Sending: evaluate message (ID: 55d3c238509c22cc262f7736c7cbb87c8e7b3be94f34145fa477235b17f95dba)
+INFO :      Sent successfully
+INFO :
+INFO :      [RUN 3223487722966314410]
+INFO :      Receiving: train message (ID: dbac94d1456b1648eb15a4c4e46efb036bb4873ba775a3a3b6df76eb7930a04b)
+INFO :      Received successfully
+INFO :      Start `flwr-clientapp` process
+INFO :      [flwr-clientapp] Pull `AppInputs` for token 2045...ac85
+A mapear e abrir proxies para 679 volumes...
+[ISPY2] treinando em 41200 fatias...
+INFO :      [flwr-clientapp] Push `AppOutputs` for token 2045...ac85
+INFO :
+INFO :      [RUN 3223487722966314410]
+INFO :      Sending: train message (ID: 9c6d9f7441588624387e0d260205d7eb929c45b9c74711173091882bf43836bc)
+INFO :
+INFO :      Sent successfully
+INFO :
+INFO :      [RUN 3223487722966314410]
+INFO :      Receiving: evaluate message (ID: 8256575d86267f086c38062b56d5e265ffd1cb9a865225916a424151109a5c09)
+INFO :      Received successfully
+INFO :      Start `flwr-clientapp` process
+INFO :      [flwr-clientapp] Pull `AppInputs` for token 8278...a43c
+A mapear e abrir proxies para 170 volumes...
+[ISPY2] validando em 10490 fatias...
+[ISPY2] val_loss=0.2325 | val_dice3D=0.5781
+INFO :      [flwr-clientapp] Push `AppOutputs` for token 8278...a43c
+INFO :
+INFO :
+INFO :      [RUN 3223487722966314410]
+INFO :      Sending: evaluate message (ID: 131f023a79b15d1297166336d79502b1db8c15c58680ebe50be6a84bfd75a83e)
+INFO :      Sent successfully
+INFO :
+INFO :      [RUN 3223487722966314410]
+INFO :      Receiving: train message (ID: 552beb5e721d393b57f3d4f7b7b0a49ef4acda3720c1ccad4cd484ca07714615)
+INFO :      Received successfully
+INFO :      Start `flwr-clientapp` process
+INFO :      [flwr-clientapp] Pull `AppInputs` for token effc...ae6b
+A mapear e abrir proxies para 679 volumes...
+[ISPY2] treinando em 41200 fatias...
+INFO :      [flwr-clientapp] Push `AppOutputs` for token effc...ae6b
+INFO :
+INFO :
+INFO :      [RUN 3223487722966314410]
+INFO :      Sending: train message (ID: c1212b346d506436994ef4adacefa19037a9a0082908d0e5046c665329b73d68)
+INFO :      Sent successfully
+INFO :
+INFO :      [RUN 3223487722966314410]
+INFO :      Receiving: evaluate message (ID: 3e2b5f623924767c7dc9262ae3b7e1d8f57d7647b3523a2bd2d95d45a54f24a3)
+INFO :      Received successfully
+INFO :      Start `flwr-clientapp` process
+INFO :      [flwr-clientapp] Pull `AppInputs` for token 87cf...4991
+A mapear e abrir proxies para 170 volumes...
+[ISPY2] validando em 10490 fatias...
+[ISPY2] val_loss=0.2049 | val_dice3D=0.6419
+INFO :      [flwr-clientapp] Push `AppOutputs` for token 87cf...4991
+INFO :
+INFO :
+INFO :      [RUN 3223487722966314410]
+INFO :      Sending: evaluate message (ID: e448ef3c066cadd876ae063a503d077f8619b8e2c3b38ee67584437a6121a83b)
+INFO :      Sent successfully
+INFO :
+INFO :      [RUN 3223487722966314410]
+INFO :      Receiving: train message (ID: 88663ddde5acab1108ccd4e0be905bb660f79c76c223ec8714cd32a79b8b94f7)
+INFO :      Received successfully
+INFO :      Start `flwr-clientapp` process
+INFO :      [flwr-clientapp] Pull `AppInputs` for token 98e1...4c37
+A mapear e abrir proxies para 679 volumes...
+[ISPY2] treinando em 41200 fatias...
+INFO :      [flwr-clientapp] Push `AppOutputs` for token 98e1...4c37
+INFO :
+INFO :
+INFO :      [RUN 3223487722966314410]
+INFO :      Sending: train message (ID: 5817e3a187be9077c9a1d29954e1dac179750d51a2ac65d3fac8c490c730bbfa)
+INFO :      Sent successfully
+INFO :
+INFO :      [RUN 3223487722966314410]
+INFO :      Receiving: evaluate message (ID: a85b6cf04c8f3b2df9986034b61a4807a1a5b94ac54e771a95da7015b8d86b6b)
+INFO :      Received successfully
+INFO :      Start `flwr-clientapp` process
+INFO :      [flwr-clientapp] Pull `AppInputs` for token 719a...d769
+A mapear e abrir proxies para 170 volumes...
+[ISPY2] validando em 10490 fatias...
+[ISPY2] val_loss=0.2122 | val_dice3D=0.6222
+INFO :      [flwr-clientapp] Push `AppOutputs` for token 719a...d769
+INFO :
+INFO :
+INFO :      [RUN 3223487722966314410]
+INFO :      Sending: evaluate message (ID: 1686cd545a7d8dc5ccc5ea4a17a51ecaec1bef841f9a607e463663abdef6a674)
+INFO :      Sent successfully
+INFO :
+INFO :      [RUN 3223487722966314410]
+INFO :      Receiving: train message (ID: 21465b9753fa163d3e2af23f00c225ed6d06dea242dc11f52147234730dd3327)
+INFO :      Received successfully
+INFO :      Start `flwr-clientapp` process
+INFO :      [flwr-clientapp] Pull `AppInputs` for token cd72...bb0e
+A mapear e abrir proxies para 679 volumes...
+[ISPY2] treinando em 41200 fatias...
+INFO :      [flwr-clientapp] Push `AppOutputs` for token cd72...bb0e
+INFO :
+INFO :      [RUN 3223487722966314410]
+INFO :      Sending: train message (ID: 6671d8ca38580aa93fae8f46178c0827469f34a003234be03a32a79e1f3095de)
+INFO :
+INFO :      Sent successfully
+INFO :
+INFO :      [RUN 3223487722966314410]
+INFO :      Receiving: evaluate message (ID: ea86e59e8412ed14952af74a8d739c220e93fedbcbc35bbe556d2e9e498e5c54)
+INFO :      Received successfully
+INFO :      Start `flwr-clientapp` process
+INFO :      [flwr-clientapp] Pull `AppInputs` for token 8478...6895
+A mapear e abrir proxies para 170 volumes...
+[ISPY2] validando em 10490 fatias...
+[ISPY2] val_loss=0.2179 | val_dice3D=0.6054
+INFO :      [flwr-clientapp] Push `AppOutputs` for token 8478...6895
+INFO :
+INFO :
+INFO :      [RUN 3223487722966314410]
+INFO :      Sending: evaluate message (ID: be62c488fba8c73a24175ab315a651560567fdbcdb4dddff602683b55bc291a8)
+INFO :      Sent successfully

@@ -1,0 +1,135 @@
+(.venv) vitor@Jenna:~/fed_mama/quickstart-pytorch$ flwr run . local-deployment --stream
+🎊 Successfully started run 12906200621831332469
+INFO :      Starting logstream for run_id `12906200621831332469`
+INFO :      Start `flwr-serverapp` process
+INFO :      Starting FedAvgTTL strategy:
+INFO :          ├── Number of rounds: 10
+INFO :          ├── ArrayRecord (1.48 MB)
+INFO :          ├── ConfigRecord (train): {'lr': 0.0001}
+INFO :          ├── ConfigRecord (evaluate): (empty!)
+INFO :          ├──> Sampling:
+INFO :          │       ├──Fraction: train (1.00) | evaluate ( 1.00)
+INFO :          │       ├──Minimum nodes: train (4) | evaluate (4)
+INFO :          │       └──Minimum available nodes: 4
+INFO :          └──> Keys in records:
+INFO :                  ├── Weighted by: 'num-examples'
+INFO :                  ├── ArrayRecord key: 'arrays'
+INFO :                  └── ConfigRecord key: 'config'
+INFO :
+INFO :
+INFO :      [ROUND 1/10]
+INFO :      configure_train: Sampled 4 nodes (out of 4)
+INFO :      aggregate_train: Received 4 results and 0 failures
+INFO :          └──> Aggregated MetricRecord: {'train_loss': 0.31983766438625505}
+INFO :      configure_evaluate: Sampled 4 nodes (out of 4)
+INFO :      aggregate_evaluate: Received 4 results and 0 failures
+INFO :          └──> Aggregated MetricRecord: {'loss_agregado': 0.2811473814304229, 'dice_agregado': 0.576464321328408}
+INFO :
+INFO :      [ROUND 2/10]
+INFO :      configure_train: Sampled 4 nodes (out of 4)
+INFO :      aggregate_train: Received 4 results and 0 failures
+INFO :          └──> Aggregated MetricRecord: {'train_loss': 0.17147157873241126}
+INFO :      configure_evaluate: Sampled 4 nodes (out of 4)
+INFO :      aggregate_evaluate: Received 4 results and 0 failures
+INFO :          └──> Aggregated MetricRecord: {'loss_agregado': 0.22387404935064947, 'dice_agregado': 0.5965713939762609}
+INFO :
+INFO :      [ROUND 3/10]
+INFO :      configure_train: Sampled 4 nodes (out of 4)
+INFO :      aggregate_train: Received 4 results and 0 failures
+INFO :          └──> Aggregated MetricRecord: {'train_loss': 0.15814880593001873}
+INFO :      configure_evaluate: Sampled 4 nodes (out of 4)
+INFO :      aggregate_evaluate: Received 4 results and 0 failures
+INFO :          └──> Aggregated MetricRecord: {'loss_agregado': 0.22625825947561176, 'dice_agregado': 0.5863778744784689}
+INFO :
+INFO :      [ROUND 4/10]
+INFO :      configure_train: Sampled 4 nodes (out of 4)
+INFO :      aggregate_train: Received 4 results and 0 failures
+INFO :          └──> Aggregated MetricRecord: {'train_loss': 0.14825915575592177}
+INFO :      configure_evaluate: Sampled 4 nodes (out of 4)
+INFO :      aggregate_evaluate: Received 4 results and 0 failures
+INFO :          └──> Aggregated MetricRecord: {'loss_agregado': 0.21288567953893364, 'dice_agregado': 0.6172467043698365}
+INFO :
+INFO :      [ROUND 5/10]
+INFO :      configure_train: Sampled 4 nodes (out of 4)
+INFO :      aggregate_train: Received 4 results and 0 failures
+INFO :          └──> Aggregated MetricRecord: {'train_loss': 0.1400788980813365}
+INFO :      configure_evaluate: Sampled 4 nodes (out of 4)
+INFO :      aggregate_evaluate: Received 4 results and 0 failures
+INFO :          └──> Aggregated MetricRecord: {'loss_agregado': 0.23133736310131991, 'dice_agregado': 0.5688259331814218}
+INFO :
+INFO :      [ROUND 6/10]
+INFO :      configure_train: Sampled 4 nodes (out of 4)
+INFO :      aggregate_train: Received 4 results and 0 failures
+INFO :          └──> Aggregated MetricRecord: {'train_loss': 0.13590343239973177}
+INFO :      configure_evaluate: Sampled 4 nodes (out of 4)
+INFO :      aggregate_evaluate: Received 4 results and 0 failures
+INFO :          └──> Aggregated MetricRecord: {'loss_agregado': 0.20561390334232324, 'dice_agregado': 0.6320359439797844}
+INFO :
+INFO :      [ROUND 7/10]
+INFO :      configure_train: Sampled 4 nodes (out of 4)
+INFO :      aggregate_train: Received 4 results and 0 failures
+INFO :          └──> Aggregated MetricRecord: {'train_loss': 0.13072923335475256}
+INFO :      configure_evaluate: Sampled 4 nodes (out of 4)
+INFO :      aggregate_evaluate: Received 4 results and 0 failures
+INFO :          └──> Aggregated MetricRecord: {'loss_agregado': 0.20849918233478, 'dice_agregado': 0.6283925853180524}
+INFO :
+INFO :      [ROUND 8/10]
+INFO :      configure_train: Sampled 4 nodes (out of 4)
+INFO :      aggregate_train: Received 4 results and 0 failures
+INFO :          └──> Aggregated MetricRecord: {'train_loss': 0.12559473788350412}
+INFO :      configure_evaluate: Sampled 4 nodes (out of 4)
+INFO :      aggregate_evaluate: Received 4 results and 0 failures
+INFO :          └──> Aggregated MetricRecord: {'loss_agregado': 0.20712351986716984, 'dice_agregado': 0.6345200839816516}
+INFO :
+INFO :      [ROUND 9/10]
+INFO :      configure_train: Sampled 4 nodes (out of 4)
+INFO :      aggregate_train: Received 4 results and 0 failures
+INFO :          └──> Aggregated MetricRecord: {'train_loss': 0.1209784626022763}
+INFO :      configure_evaluate: Sampled 4 nodes (out of 4)
+INFO :      aggregate_evaluate: Received 4 results and 0 failures
+INFO :          └──> Aggregated MetricRecord: {'loss_agregado': 0.20585557303621635, 'dice_agregado': 0.6278455504125523}
+INFO :
+INFO :      [ROUND 10/10]
+INFO :      configure_train: Sampled 4 nodes (out of 4)
+INFO :      aggregate_train: Received 4 results and 0 failures
+INFO :          └──> Aggregated MetricRecord: {'train_loss': 0.11876685827122481}
+INFO :      configure_evaluate: Sampled 4 nodes (out of 4)
+INFO :      aggregate_evaluate: Received 4 results and 0 failures
+INFO :          └──> Aggregated MetricRecord: {'loss_agregado': 0.21588579533743854, 'dice_agregado': 0.6027121078759439}
+INFO :
+INFO :      Strategy execution finished in 394859.93s
+INFO :
+INFO :      Final results:
+INFO :
+INFO :          Global Arrays:
+INFO :                  ArrayRecord (1.483 MB)
+INFO :
+INFO :          Aggregated ClientApp-side Train Metrics:
+INFO :          { 1: {'train_loss': '3.1984e-01'},
+INFO :            2: {'train_loss': '1.7147e-01'},
+INFO :            3: {'train_loss': '1.5815e-01'},
+INFO :            4: {'train_loss': '1.4826e-01'},
+INFO :            5: {'train_loss': '1.4008e-01'},
+INFO :            6: {'train_loss': '1.3590e-01'},
+INFO :            7: {'train_loss': '1.3073e-01'},
+INFO :            8: {'train_loss': '1.2559e-01'},
+INFO :            9: {'train_loss': '1.2098e-01'},
+INFO :            10: {'train_loss': '1.1877e-01'}}
+INFO :
+INFO :          Aggregated ClientApp-side Evaluate Metrics:
+INFO :          { 1: {'dice_agregado': '5.7646e-01', 'loss_agregado': '2.8115e-01'},
+INFO :            2: {'dice_agregado': '5.9657e-01', 'loss_agregado': '2.2387e-01'},
+INFO :            3: {'dice_agregado': '5.8638e-01', 'loss_agregado': '2.2626e-01'},
+INFO :            4: {'dice_agregado': '6.1725e-01', 'loss_agregado': '2.1289e-01'},
+INFO :            5: {'dice_agregado': '5.6883e-01', 'loss_agregado': '2.3134e-01'},
+INFO :            6: {'dice_agregado': '6.3204e-01', 'loss_agregado': '2.0561e-01'},
+INFO :            7: {'dice_agregado': '6.2839e-01', 'loss_agregado': '2.0850e-01'},
+INFO :            8: {'dice_agregado': '6.3452e-01', 'loss_agregado': '2.0712e-01'},
+INFO :            9: {'dice_agregado': '6.2785e-01', 'loss_agregado': '2.0586e-01'},
+INFO :            10: {'dice_agregado': '6.0271e-01', 'loss_agregado': '2.1589e-01'}}
+INFO :
+INFO :          ServerApp-side Evaluate Metrics:
+INFO :          {}
+INFO :
+
+Salvando o modelo final em disco...

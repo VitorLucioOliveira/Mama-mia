@@ -1,9 +1,12 @@
-dados_processados_2d/
-images/
-segmentations/
-nnUNet_pretrained_weights/
 patient_info_files/
-Testes_manufacture
+federated-project/data/DUKE/images
+federated-project/data/DUKE/segmentations/expert
+federated-project/data/ISPY1/images
+federated-project/data/ISPY1/segmentations/expert
+federated-project/data/ISPY2/images
+federated-project/data/ISPY2/segmentations/expert
+federated-project/data/NACT/images
+federated-project/data/NACT/segmentations/expert
 
 .venv/
 __pycache__/

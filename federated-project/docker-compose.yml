@@ -1,0 +1,40 @@
+services:
+  client-duke:
+    build:
+      context: .
+      dockerfile: client/Dockerfile
+    mem_limit: 2g
+    volumes:
+      - ./data/DUKE:/app/data
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      
+  client-ispy1:
+    build:
+      context: .
+      dockerfile: client/Dockerfile
+    mem_limit: 2g
+    volumes:
+      - ./data/ISPY1:/app/data
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  client-ispy2:
+    build:
+      context: .
+      dockerfile: client/Dockerfile
+    mem_limit: 2g
+    volumes:
+      - ./data/ISPY2:/app/data
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  client-nact:
+    build:
+      context: .
+      dockerfile: client/Dockerfile
+    mem_limit: 2g
+    volumes:
+      - ./data/NACT:/app/data
+    extra_hosts:
+      - "host.docker.internal:host-gateway"  
